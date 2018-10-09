@@ -834,7 +834,7 @@ func (q *qemu) hotplugVFIODevice(device *config.VFIODev, op operation) error {
 	return nil
 }
 
-func (q *qemu) hotplugMacvtap(drive *VirtualEndpoint) error {
+func (q *qemu) hotplugMacvtap(drive *VethEndpoint) error {
 	var (
 		VMFdNames    []string
 		VhostFdNames []string
@@ -858,7 +858,7 @@ func (q *qemu) hotplugMacvtap(drive *VirtualEndpoint) error {
 	return q.qmpMonitorCh.qmp.ExecuteNetdevAddByFds(q.qmpMonitorCh.ctx, "tap", drive.NetPair.Name, VMFdNames, VhostFdNames)
 }
 
-func (q *qemu) hotplugNetDevice(drive *VirtualEndpoint, op operation) error {
+func (q *qemu) hotplugNetDevice(drive *VethEndpoint, op operation) error {
 	err := q.qmpSetup()
 	if err != nil {
 		return err
@@ -915,7 +915,7 @@ func (q *qemu) hotplugDevice(devInfo interface{}, devType deviceType, op operati
 		memdev := devInfo.(*memoryDevice)
 		return q.hotplugMemory(memdev, op)
 	case netDev:
-		device := devInfo.(*VirtualEndpoint)
+		device := devInfo.(*VethEndpoint)
 		return nil, q.hotplugNetDevice(device, op)
 	default:
 		return nil, fmt.Errorf("cannot hotplug device: unsupported device type '%v'", devType)
